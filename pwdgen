@@ -1,58 +1,13 @@
 #!/usr/bin/env python
+"""Generate a secure 'Correct-Battery-Horse-Staple' style password"""
 
-from random import randint
-from itertools import islice
-
-fname = '/usr/share/dict/words'
-
-_WORD_LEN_MIN = 5
-_WORD_SEPARATOR = '-'
-
-
-def get_specific_line(file, line_number):
-    for aline in islice(file, line_number - 1, line_number):
-        return aline
-
-
-def word_length_is_good(word):
-    word_len = len(word)
-    return word_len == 6
-
-
-def word_is_good(word):
-    return word.isalpha() and word_length_is_good(word)
-
-
-def random_lines(file_name, num_lines):
-    num_lines_in_file = sum(1 for line in open(fname))
-    lines = []
-    while len(lines) < num_lines:
-        line_num = randint(1, num_lines_in_file)
-        with open(file_name) as fp:
-            line = get_specific_line(fp, line_num)
-            # drop newline character
-            line = line[:-1]
-            if word_is_good(line):
-                lines.append(line)
-    return lines
-
-
-def capitalize_first_letter(words):
-    capitalized_words = []
-    for word in words:
-        capitalized_words.append(word.title())
-    return capitalized_words
-
-
-def append_word_seperator(words):
-    appended_words = []
-    for word in words[:-1]:
-        appended_words.append(word + _WORD_SEPARATOR)
-    appended_words.append(words[-1])
-    return appended_words
+from __future__ import print_function
+import argparse
+from PasswordGenerator import Password
 
 
 def is_strong_password(password):
+    """Determine if a given string can be used as a strong password"""
     import crack
     try:
         crack.VeryFascistCheck(password)
@@ -61,16 +16,29 @@ def is_strong_password(password):
     return True
 
 
-def generate_password(num_words):
-    random_words = random_lines(fname, num_words)
-    capitalized_random_words = capitalize_first_letter(random_words)
-    separated_words = append_word_seperator(capitalized_random_words)
-    password = ''.join(separated_words)
-    return password
+def get_parsed_args():
+    """Parses cli arguments and retuns them as a dict"""
+    parser = argparse.ArgumentParser(description='Secure password generator')
+    parser.add_argument('--min_words', help='Minimum number of words', default=2, type=int)
+    parser.add_argument('--min_length', help='Minimum password length', default=30, type=int)
+    parser.add_argument('--max_length', help='Maximum password length', default=100, type=int)
+    return vars(parser.parse_args())
 
 
-generated_password = generate_password(3)
-if is_strong_password(generated_password):
-    print("'" + generated_password + "' is plenty strong")
-else:
-    print("'" + generated_password + "' is too weak")
+def main():
+    """The main function"""
+    args = get_parsed_args()
+    max_len = args['max_length']
+    min_len = args['min_length']
+    num_words = args['min_words']
+    password_obj = Password(num_words, min_len, max_len)
+    generated_password = str(password_obj)
+    print("'" + generated_password + "' ", end='')
+    if is_strong_password(generated_password):
+        print("is a strong password")
+    else:
+        print("is a weak password")
+
+
+if __name__ == '__main__':
+    main()
