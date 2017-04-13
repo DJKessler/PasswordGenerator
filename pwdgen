@@ -22,6 +22,7 @@ def get_parsed_args():
     parser.add_argument('--min_words', help='Minimum number of words', default=2, type=int)
     parser.add_argument('--min_length', help='Minimum password length', default=30, type=int)
     parser.add_argument('--max_length', help='Maximum password length', default=100, type=int)
+    parser.add_argument('--num_pwords', help='Number of passwords to generate', default=5, type=int)
     return vars(parser.parse_args())
 
 
@@ -30,14 +31,16 @@ def main():
     args = get_parsed_args()
     max_len = args['max_length']
     min_len = args['min_length']
-    num_words = args['min_words']
-    password_obj = Password(num_words, min_len, max_len)
-    generated_password = str(password_obj)
-    print("'" + generated_password + "' ", end='')
-    if is_strong_password(generated_password):
-        print("is a strong password")
-    else:
-        print("is a weak password")
+    min_words = args['min_words']
+    num_pwords = args['num_pwords']
+    password_obj = Password(min_words, min_len, max_len)
+    for idx in range(0, num_pwords):
+        generated_password = str(password_obj)
+        print("'" + generated_password + "' ", end='')
+        if is_strong_password(generated_password):
+            print("is a strong password")
+        else:
+            print("is a weak password")
 
 
 if __name__ == '__main__':
