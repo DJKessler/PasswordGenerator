@@ -19,7 +19,7 @@ def is_strong_password(password):
 def get_parsed_args():
     """Parses cli arguments and retuns them as a dict"""
     parser = argparse.ArgumentParser(description='Secure password generator')
-    parser.add_argument('--min_words', help='Minimum number of words', default=2, type=int)
+    parser.add_argument('--separator', help='Word separator', default='-', type=str)
     parser.add_argument('--min_length', help='Minimum password length', default=30, type=int)
     parser.add_argument('--max_length', help='Maximum password length', default=100, type=int)
     parser.add_argument('--num_pwords', help='Number of passwords to generate', default=5, type=int)
@@ -29,16 +29,16 @@ def get_parsed_args():
 def main():
     """The main function"""
     args = get_parsed_args()
+    separator = args['separator']
     max_len = args['max_length']
     min_len = args['min_length']
-    min_words = args['min_words']
     num_pwords = args['num_pwords']
-    password_obj = Password(min_words, min_len, max_len)
+    password_obj = Password(min_len, max_len, separator)
     for idx in range(0, num_pwords):
         generated_password = str(password_obj)
         print("'" + generated_password + "' ", end='')
         if is_strong_password(generated_password):
-            print("is a strong password")
+            print("is a strong, " + str(len(str(generated_password))) + " character password")
         else:
             print("is a weak password")
 

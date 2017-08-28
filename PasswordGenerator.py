@@ -4,10 +4,13 @@ from random import SystemRandom
 from itertools import islice
 
 _DICT_FILENAME = '/usr/share/dict/words'
+_MIN_WORD_LENGTH = 4
+_MIN_NUM_WORDS = 2
 
 
 class RandomWordSelector:
     """Securely selects random words from a dictonary file"""
+
     def __init__(self, dict_file=_DICT_FILENAME):
         self._dict_file = dict_file
         self._file_length = sum(1 for line in open(dict_file))
@@ -32,9 +35,10 @@ class RandomWordSelector:
 
 class Password:
     """Generates secure random passwords"""
-    def __init__(self, min_num_words=2, min_total_len=20, max_total_len=50,
-                 separator='-', min_word_len=5, dictionary_file=_DICT_FILENAME):
-        self._min_num_segments = min_num_words
+
+    def __init__(self, min_total_len=20, max_total_len=50,
+                 separator='-', min_word_len=_MIN_WORD_LENGTH, dictionary_file=_DICT_FILENAME):
+        self._min_num_segments = _MIN_NUM_WORDS
         self._file_name = dictionary_file
         self._min_segment_len = min_word_len
         self._min_total_len = min_total_len
@@ -49,7 +53,7 @@ class Password:
         length = 0
         segments_length = 0
         segments = []
-        while length < self._min_total_len or len(segments) < self._min_num_segments:
+        while length <= self._min_total_len or len(segments) < self._min_num_segments:
             segments.append(self._get_next_segment(segments))
             segments_length += len(segments[-1])
             length = segments_length + (len(self._separator) * len(segments) - 1)
