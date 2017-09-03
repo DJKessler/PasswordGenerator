@@ -3,7 +3,9 @@
 
 from __future__ import print_function
 import argparse
-from PasswordGenerator import Password
+from passwords import generator
+
+_MAX_WEAK_PWORDS = 100
 
 
 def is_strong_password(password):
@@ -33,14 +35,22 @@ def main():
     max_len = args['max_length']
     min_len = args['min_length']
     num_pwords = args['num_pwords']
-    password_obj = Password(min_len, max_len, separator)
-    for idx in range(0, num_pwords):
-        generated_password = str(password_obj)
-        print("'" + generated_password + "' ", end='')
+    password_generator = generator.Generator(min_len, max_len, separator)
+    strong_pwords = []
+    num_weak_pwords = 0
+    while len(strong_pwords) < num_pwords and num_weak_pwords < _MAX_WEAK_PWORDS:
+        generated_password = password_generator.generate()
         if is_strong_password(generated_password):
-            print("is a strong, " + str(len(str(generated_password))) + " character password")
+            strong_pwords.append(generated_password)
         else:
-            print("is a weak password")
+            num_weak_pwords += 1
+
+    if num_weak_pwords >= _MAX_WEAK_PWORDS:
+        print("Failed to generate {} strong passwords after {} attempts".format(num_pwords, num_weak_pwords))
+        return
+
+    for pword in strong_pwords:
+        print("'{}' is a strong, {} character password".format(pword, str(len(str(pword)))))
 
 
 if __name__ == '__main__':
