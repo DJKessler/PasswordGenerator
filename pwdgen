@@ -1,7 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Generate a secure 'Correct-Battery-Horse-Staple' style password"""
 
-from __future__ import print_function
 import argparse
 from passwords import generator
 
@@ -10,9 +9,9 @@ _MAX_WEAK_PWORDS = 100
 
 def is_strong_password(password):
     """Determine if a given string can be used as a strong password"""
-    import crack
+    import cracklib
     try:
-        crack.VeryFascistCheck(password)
+        cracklib.VeryFascistCheck(password)
     except ValueError:
         return False
     return True
@@ -24,6 +23,8 @@ def get_parsed_args():
     parser.add_argument('--separator', help='Word separator', default='-', type=str)
     parser.add_argument('--min_length', help='Minimum password length', default=30, type=int)
     parser.add_argument('--max_length', help='Maximum password length', default=100, type=int)
+    parser.add_argument('--maximize_length', help='Attempt to generate passwords of max length', default=True,
+                        type=bool)
     parser.add_argument('--num_pwords', help='Number of passwords to generate', default=5, type=int)
     return vars(parser.parse_args())
 
@@ -34,8 +35,9 @@ def main():
     separator = args['separator']
     max_len = args['max_length']
     min_len = args['min_length']
+    maximize = args['maximize_length']
     num_pwords = args['num_pwords']
-    password_generator = generator.Generator(min_len, max_len, separator)
+    password_generator = generator.Generator(min_len, max_len, maximize_len=maximize, separator=separator)
     strong_pwords = []
     num_weak_pwords = 0
     while len(strong_pwords) < num_pwords and num_weak_pwords < _MAX_WEAK_PWORDS:
